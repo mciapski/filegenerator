@@ -14,8 +14,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest
 class GeneratorControllerTest {
@@ -37,17 +35,19 @@ class GeneratorControllerTest {
 
     // Napisać teraz przypadek gdzie nie da sie wygenerować
     @Test
-    public void returnErrorIfGeneratingImpossible() throws Exception {
-        // given
+    public void returnErrorIfCharactersQuantityNotEnough() throws Exception {
+
         // when
+        // For minLength = 2, maxLength=4, inputCharSequence=3
+        // possibleQuantityOfWords = 2^2 + 2^3 = 36 so it should throw an exception
         mockMvc.perform(post("/api/generate_file")
-                        .param("wordInput", "Ola")
+                        .param("inputCharSequence", "Ola")
                         .param("requestedQuantityOfWords","100")
+                        .param("minLength", "2")
+                        .param("maxLength", "3")
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
                 .andExpect(result -> assertTrue(result.getResolvedException() instanceof NotEnoughCharsException))
                 .andExpect(result -> assertEquals("Za mała ilość znaków", Objects.requireNonNull(result.getResolvedException()).getMessage()));
-        // then
     }
 
 }
