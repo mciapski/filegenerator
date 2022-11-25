@@ -20,6 +20,7 @@ import org.springframework.web.context.WebApplicationContext;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -48,7 +49,7 @@ class GeneratorControllerTest {
 
 
     @Test
-    public void generatorControlerIsNotNull() {
+    public void generatorControllerIsNotNull() {
         assertThat(generatorController).isNotNull();
     }
 
@@ -64,7 +65,6 @@ class GeneratorControllerTest {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 
-    // Napisać teraz przypadek gdzie nie da sie wygenerować
     @Test
     public void returnErrorIfCharactersQuantityNotEnough() throws Exception {
         var request = new FileGenerationRequest("Ola", 200, 2, 3);
@@ -88,21 +88,19 @@ class GeneratorControllerTest {
 
         // given
         var request = new FileGenerationRequest("Ola", 100, 2, 5);
-// when
-        when(generatorController.startGenerationJob(request)).thenReturn(List.of(new GeneratedString(BigInteger.ONE, "Dramat")));
+        // when
+        when(generatorController.startGenerationJob(request)).thenReturn(Set.of(new GeneratedString(1, "Dramat")));
         var response = mockMvc.perform(post("/api/generate_file")
                         .content(gson.toJson(request))
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
                 .andDo(print())
                 .andReturn()
                 .getResponse();
-// then
-//        assertThat(response.getStatus()).isEqualTo(HttpStatus.OK.value());
+        // then
         System.out.println(response.getContentAsString());
-        List<GeneratedString> result = gson.fromJson(response.getContentAsString(), new TypeToken<List<GeneratedString>>() {
+        Set<GeneratedString> result = gson.fromJson(response.getContentAsString(), new TypeToken<Set<GeneratedString>>() {
         }.getType());
-        assertThat(result).isEqualTo(List.of(new GeneratedString(BigInteger.ONE, "Dramat")));
-
+        assertThat(result).isEqualTo(Set.of(new GeneratedString(1, "Dramat")));
     }
 
 
