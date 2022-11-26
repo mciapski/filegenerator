@@ -38,7 +38,7 @@ public class FileGenerationService {
         Random random = new Random();
         StringBuilder sb = new StringBuilder();
 
-        for (int i = 0; i < requestedQuantityOfWords; i++) {
+        for (int i = 1; i <= requestedQuantityOfWords; i++) {
             int randomLengthBetweenMinAndMax = random.nextInt(minLength, maxLength + 1);
             for (int j = 0; j < randomLengthBetweenMinAndMax; j++) {
                 int index = random.nextInt(sizeOfCharSequenceWithoutDuplicates);
