@@ -15,11 +15,9 @@ public class FileGeneratorServiceTest {
         //given
         FileGenerationService fileGenerationService = new FileGenerationService();
         //when
-        String expectedFirst = "ma";
         String expectedSecond = "am";
         String result = fileGenerationService.removeDuplicatesFromCharSequence("mama");
         //then
-        assertThat(result).isEqualTo(expectedFirst);
         assertThat(result).isEqualTo(expectedSecond);
     }
 

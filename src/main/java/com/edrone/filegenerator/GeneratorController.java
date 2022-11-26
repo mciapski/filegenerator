@@ -29,6 +29,10 @@ public class GeneratorController {
             generatorRepository.saveAll(setoToSaveInDB);
             return fileGenerationService.returnGeneratedSetOfStrings(request.alphabet(), request.wordCount(), request.minLength(), request.maxLength());
         }
+    }
 
+    @GetMapping("/api/generate_file")
+    public List<GeneratedString> getGeneratedStringsFromDB(){
+        return generatorRepository.findAll();
     }
 }

@@ -14,13 +14,9 @@ public class FileGenerationService {
                                                    Integer requestedQuantityOfWords,
                                                    Integer minLength,
                                                    Integer maxLength) {
-
-        Set<Character> inputCharSequenceWithoutDuplicates = inputCharSequence.chars()
-                .mapToObj(item -> (char) item)
-                .collect(Collectors.toSet());
         // For minLength = 2, maxLength=4, inputCharSequence=3
         // possibleQuantityOfWords = 2^2 + 2^3
-        int baseOfPower = inputCharSequenceWithoutDuplicates.size();
+        int baseOfPower = removeDuplicatesFromCharSequence(inputCharSequence).length();
         int indexOfPower;
         int possibleQuantityOfWords = 0;
         for (int i = minLength; i <= maxLength; i++) {
