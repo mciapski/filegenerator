@@ -1,5 +1,7 @@
 package com.edrone.filegenerator;
 
+import org.jobrunr.jobs.annotations.Job;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -8,8 +10,10 @@ import java.util.stream.Collectors;
 @Service
 public class FileGenerationService {
 
-    //    @Autowired
-//    GeneratorRepository generatorRepository;
+    @Autowired
+    GeneratorRepository generatorRepository;
+
+
     public boolean checkIfCharactersQuantityEnough(String inputCharSequence,
                                                    Integer requestedQuantityOfWords,
                                                    Integer minLength,
@@ -23,15 +27,30 @@ public class FileGenerationService {
             indexOfPower = i;
             possibleQuantityOfWords += Math.pow(baseOfPower, indexOfPower);
         }
-        return requestedQuantityOfWords <= possibleQuantityOfWords;
+        if (requestedQuantityOfWords <= possibleQuantityOfWords) {
+            return true;
+        }
+        throw new NotEnoughCharsException("Za mała ilość znaków");
+    }
+    public String removeDuplicatesFromCharSequence(String inputCharSequence) {
+        Set<Character> inputCharSequenceWithoutDuplicates = inputCharSequence.chars()
+                .mapToObj(item -> (char) item)
+                .collect(Collectors.toSet());
+        String inputCharSequenceWithoutDuplicatesAsString = "";
+        for (Character character : inputCharSequenceWithoutDuplicates) {
+            inputCharSequenceWithoutDuplicatesAsString += character;
+        }
+        return inputCharSequenceWithoutDuplicatesAsString;
     }
 
-    public Set<GeneratedString> returnGeneratedSetOfStrings(String inputCharSequence,
-                                                            Integer requestedQuantityOfWords,
-                                                            Integer minLength,
-                                                            Integer maxLength) {
-
+    public List<GeneratedString> returnGeneratedListOfStrings(String inputCharSequence,
+                                                              Integer requestedQuantityOfWords,
+                                                              Integer minLength,
+                                                              Integer maxLength) {
+        checkIfCharactersQuantityEnough(inputCharSequence,requestedQuantityOfWords,minLength,maxLength);
         Set<GeneratedString> setOfGeneratedStrings = new TreeSet<>();
+        List<GeneratedString> generatedStringList = new ArrayList<>();
+
         int sizeOfCharSequenceWithoutDuplicates = removeDuplicatesFromCharSequence(inputCharSequence).length();
         String charSequenceWithoutDuplicates = removeDuplicatesFromCharSequence(inputCharSequence);
 
@@ -46,21 +65,25 @@ public class FileGenerationService {
                 sb.append(randomChar);
             }
             String newString = sb.toString();
-            setOfGeneratedStrings.add(new GeneratedString(i,newString));
-            sb=new StringBuilder();
+            setOfGeneratedStrings.add(new GeneratedString(i, newString));
+            sb = new StringBuilder();
         }
-
-        return setOfGeneratedStrings;
+        generatedStringList.addAll(setOfGeneratedStrings);
+        return generatedStringList;
     }
 
-    public String removeDuplicatesFromCharSequence(String inputCharSequence) {
-        Set<Character> inputCharSequenceWithoutDuplicates = inputCharSequence.chars()
-                .mapToObj(item -> (char) item)
-                .collect(Collectors.toSet());
-        String inputCharSequenceWithoutDuplicatesAsString = "";
-        for (Character character : inputCharSequenceWithoutDuplicates) {
-            inputCharSequenceWithoutDuplicatesAsString += character;
-        }
-        return inputCharSequenceWithoutDuplicatesAsString;
+    @Job(name = "Saving all records to DB")
+    public List<GeneratedString> saveAllGeneratedStrings(String inputCharSequence,
+                                                         Integer requestedQuantityOfWords,
+                                                         Integer minLength,
+                                                         Integer maxLength){
+        return generatorRepository.saveAll(returnGeneratedListOfStrings(
+                inputCharSequence,
+                requestedQuantityOfWords,
+                minLength,
+                maxLength));
     }
+
+
+
 }

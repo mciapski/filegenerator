@@ -1,13 +1,14 @@
 package com.edrone.filegenerator;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.InjectMocks;
 
-import java.util.Set;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class FileGeneratorServiceTest {
+
 
 
     @Test
@@ -22,13 +23,42 @@ public class FileGeneratorServiceTest {
     }
 
     @Test
-    void returnGeneratedSetOfStringsTest() {
-        //given
+    void returnThreeGeneratedStringsTest() {
+        // given
         FileGenerationService fileGenerationService = new FileGenerationService();
-        //when
-        Set<GeneratedString> setOfGeneratedStrings = fileGenerationService
-                .returnGeneratedSetOfStrings("ola", 3, 2, 5);
-        System.out.println(setOfGeneratedStrings);
+        List<GeneratedString> listOfGeneratedStrings = fileGenerationService
+                .returnGeneratedListOfStrings("ola", 3, 2, 5);
+        // when
+        int expected = 3;
+        int result = listOfGeneratedStrings.size();
 
+        // then
+        assertThat(result).isEqualTo(expected);
+    }
+    @Test
+    void returnMilionGeneratedStringsTest() {
+        // given
+        FileGenerationService fileGenerationService = new FileGenerationService();
+        List<GeneratedString> listOfGeneratedStrings = fileGenerationService
+                .returnGeneratedListOfStrings("michalijustynaasdasdasdrhrthtrt13578012", 1000000, 2, 5);
+        // when
+        int expected = 1000000;
+        int result = listOfGeneratedStrings.size();
+
+        // then
+        assertThat(result).isEqualTo(expected);
+    }
+    @Test
+    void returnTwoMilionsGeneratedStringsTest() {
+        // given
+        FileGenerationService fileGenerationService = new FileGenerationService();
+        List<GeneratedString> listOfGeneratedStrings = fileGenerationService
+                .returnGeneratedListOfStrings("1234567890@#$%^&*()qwertyuiopasdfghjklzxcvbnm", 2000000, 2, 5);
+        // when
+        int expected = 2000000;
+        int result = listOfGeneratedStrings.size();
+
+        // then
+        assertThat(result).isEqualTo(expected);
     }
 }

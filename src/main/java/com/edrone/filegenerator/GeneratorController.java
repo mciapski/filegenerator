@@ -1,16 +1,11 @@
 package com.edrone.filegenerator;
 
 import org.jobrunr.jobs.annotations.Job;
-import org.jobrunr.scheduling.BackgroundJob;
+import org.jobrunr.scheduling.JobScheduler;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigInteger;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 public class GeneratorController {
@@ -20,24 +15,34 @@ public class GeneratorController {
     @Autowired
     FileGenerationService fileGenerationService;
 
+    @Autowired
+    JobScheduler jobScheduler;
+
     @PostMapping("/api/generate_file")
-    public Set<GeneratedString> startGenerationJob(@RequestBody FileGenerationRequest request) throws NotEnoughCharsException {
-        boolean wordQuantityStatus = fileGenerationService.checkIfCharactersQuantityEnough(request.alphabet(), request.wordCount(), request.minLength(), request.maxLength());
-        Set<GeneratedString> setoToSaveInDB = new HashSet<>();
-        if (!wordQuantityStatus) {
-            throw new NotEnoughCharsException("Za mała ilość znaków");
-        } else {
-            setoToSaveInDB = fileGenerationService.returnGeneratedSetOfStrings(request.alphabet(), request.wordCount(), request.minLength(), request.maxLength());
-            generatorRepository.saveAll(setoToSaveInDB);
-            return fileGenerationService.returnGeneratedSetOfStrings(request.alphabet(), request.wordCount(), request.minLength(), request.maxLength());
-        }
+    public List<GeneratedString> startGenerationJob(@RequestBody FileGenerationRequest request) throws NotEnoughCharsException {
+        return fileGenerationService.saveAllGeneratedStrings(
+                request.alphabet(),
+                request.wordCount(),
+                request.minLength(),
+                request.maxLength());
+    }
+    @PostMapping("/api/generate_file/job")
+    public List<GeneratedString> runJob(@RequestBody FileGenerationRequest request){
+        jobScheduler.enqueue(() ->fileGenerationService.saveAllGeneratedStrings(
+                request.alphabet(),
+                request.wordCount(),
+                request.minLength(),
+                request.maxLength()));
+        return fileGenerationService.saveAllGeneratedStrings(
+                request.alphabet(),
+                request.wordCount(),
+                request.minLength(),
+                request.maxLength());
     }
 
     @GetMapping("/api/generate_file")
-    public List<GeneratedString> getGeneratedStringsFromDB(){
+    public List<GeneratedString> getGeneratedStringsFromDB() {
         return generatorRepository.findAll();
     }
-
-
 
 }

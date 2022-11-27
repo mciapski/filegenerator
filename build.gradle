@@ -70,6 +70,12 @@ dependencies {
 	// https://mvnrepository.com/artifact/javax.ws.rs/javax.ws.rs-api
 	implementation 'javax.ws.rs:javax.ws.rs-api:2.1.1'
 
+	// https://mvnrepository.com/artifact/org.jobrunr/jobrunr-spring-boot-starter
+	implementation 'org.jobrunr:jobrunr-spring-boot-starter:5.3.1'
+
+	// https://mvnrepository.com/artifact/junit/junit
+	testImplementation 'junit:junit:4.13.2'
+
 
 }
 //jar {

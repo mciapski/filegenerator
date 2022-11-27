@@ -40,6 +40,7 @@ class GeneratorControllerTest {
     @MockBean
     GeneratorController generatorController;
 
+
     @Autowired
     WebApplicationContext webApplicationContext;
     @Autowired
@@ -89,7 +90,7 @@ class GeneratorControllerTest {
         // given
         var request = new FileGenerationRequest("Ola", 100, 2, 5);
         // when
-        when(generatorController.startGenerationJob(request)).thenReturn(Set.of(new GeneratedString(1, "Dramat")));
+        when(generatorController.startGenerationJob(request)).thenReturn(List.of(new GeneratedString(1, "Dramat")));
         var response = mockMvc.perform(post("/api/generate_file")
                         .content(gson.toJson(request))
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -98,10 +99,12 @@ class GeneratorControllerTest {
                 .getResponse();
         // then
         System.out.println(response.getContentAsString());
-        Set<GeneratedString> result = gson.fromJson(response.getContentAsString(), new TypeToken<Set<GeneratedString>>() {
+        List<GeneratedString> result = gson.fromJson(response.getContentAsString(), new TypeToken<List<GeneratedString>>() {
         }.getType());
-        assertThat(result).isEqualTo(Set.of(new GeneratedString(1, "Dramat")));
+        assertThat(result).isEqualTo(List.of(new GeneratedString(1, "Dramat")));
     }
+
+
 
 
 }
