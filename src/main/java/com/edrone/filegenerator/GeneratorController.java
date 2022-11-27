@@ -45,4 +45,15 @@ public class GeneratorController {
         return generatorRepository.findAll();
     }
 
+    @PostMapping("/api/generate_file/send_to_file")
+    public String saveToFile(@RequestBody FileGenerationRequest request){
+        List<GeneratedString> generatedStringList=fileGenerationService.returnGeneratedListOfStrings(
+                request.alphabet(),
+                request.wordCount(),
+                request.minLength(),
+                request.maxLength());
+        fileGenerationService.saveGeneratedStringsToFile(generatedStringList);
+        return "Done";
+    }
+
 }

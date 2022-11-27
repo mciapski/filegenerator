@@ -4,6 +4,10 @@ import org.jobrunr.jobs.annotations.Job;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -82,6 +86,26 @@ public class FileGenerationService {
                 requestedQuantityOfWords,
                 minLength,
                 maxLength));
+    }
+
+    public void saveGeneratedStringsToFile(List<GeneratedString> generatedStringList){
+        try{
+            File fileWithStrings = new File("C:/Users/mciap/OneDrive/Pulpit/fileWithStrings");
+            if(!fileWithStrings.exists()){
+                fileWithStrings.createNewFile();
+            }else {
+                FileOutputStream fileOutputStream = new FileOutputStream(fileWithStrings);
+                ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+                for(int i=0; i<generatedStringList.size(); i++){
+                    objectOutputStream.writeBytes(generatedStringList.get(i).getGeneratedString());
+                }
+                objectOutputStream.close();
+                fileOutputStream.close();
+            }
+        }catch (IOException e){
+            System.out.println(e);
+
+        }
     }
 
 
