@@ -75,21 +75,13 @@ public class FileGenerationService {
         return generatedStringList;
     }
 
-    public void saveGeneratedStringsToFile(List<GeneratedString> generatedStringList) {
-        try {
-            PrintWriter fileWithStrings = new PrintWriter("C:/Users/mciap/OneDrive/Pulpit/fileWithStrings.txt");
-
-
-            for (int i = 0; i < generatedStringList.size(); i++) {
-                fileWithStrings.println(generatedStringList.get(i).getGeneratedString());
-            }
-
-        } catch (FileNotFoundException e) {
-            System.out.println(e);
-
+    public void saveGeneratedStringsToFile(List<GeneratedString> generatedStringList) throws IOException {
+        String fileName = "stringsFile";
+        BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+        for (int i = 0; i < generatedStringList.size(); i++) {
+            writer.write(generatedStringList.get(i).getGeneratedString());
+            writer.write("\n");
         }
-
+        writer.close();
     }
-
-
 }
