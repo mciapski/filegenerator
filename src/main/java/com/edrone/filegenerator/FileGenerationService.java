@@ -4,10 +4,7 @@ import org.jobrunr.jobs.annotations.Job;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -36,6 +33,7 @@ public class FileGenerationService {
         }
         throw new NotEnoughCharsException("Za mała ilość znaków");
     }
+
     public String removeDuplicatesFromCharSequence(String inputCharSequence) {
         Set<Character> inputCharSequenceWithoutDuplicates = inputCharSequence.chars()
                 .mapToObj(item -> (char) item)
@@ -47,11 +45,12 @@ public class FileGenerationService {
         return inputCharSequenceWithoutDuplicatesAsString;
     }
 
-    public List<GeneratedString> returnGeneratedListOfStrings(String inputCharSequence,
-                                                              Integer requestedQuantityOfWords,
-                                                              Integer minLength,
-                                                              Integer maxLength) {
-        checkIfCharactersQuantityEnough(inputCharSequence,requestedQuantityOfWords,minLength,maxLength);
+    @Job(name = "Saving all records to DB")
+    public List<GeneratedString> generateRandomStrings(String inputCharSequence,
+                                                       Integer requestedQuantityOfWords,
+                                                       Integer minLength,
+                                                       Integer maxLength) {
+        checkIfCharactersQuantityEnough(inputCharSequence, requestedQuantityOfWords, minLength, maxLength);
         Set<GeneratedString> setOfGeneratedStrings = new TreeSet<>();
         List<GeneratedString> generatedStringList = new ArrayList<>();
 
@@ -76,38 +75,21 @@ public class FileGenerationService {
         return generatedStringList;
     }
 
-    @Job(name = "Saving all records to DB")
-    public List<GeneratedString> saveAllGeneratedStrings(String inputCharSequence,
-                                                         Integer requestedQuantityOfWords,
-                                                         Integer minLength,
-                                                         Integer maxLength){
-        return generatorRepository.saveAll(returnGeneratedListOfStrings(
-                inputCharSequence,
-                requestedQuantityOfWords,
-                minLength,
-                maxLength));
-    }
+    public void saveGeneratedStringsToFile(List<GeneratedString> generatedStringList) {
+        try {
+            PrintWriter fileWithStrings = new PrintWriter("C:/Users/mciap/OneDrive/Pulpit/fileWithStrings.txt");
 
-    public void saveGeneratedStringsToFile(List<GeneratedString> generatedStringList){
-        try{
-            File fileWithStrings = new File("C:/Users/mciap/OneDrive/Pulpit/fileWithStrings");
-            if(!fileWithStrings.exists()){
-                fileWithStrings.createNewFile();
-            }else {
-                FileOutputStream fileOutputStream = new FileOutputStream(fileWithStrings);
-                ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-                for(int i=0; i<generatedStringList.size(); i++){
-                    objectOutputStream.writeBytes(generatedStringList.get(i).getGeneratedString());
-                }
-                objectOutputStream.close();
-                fileOutputStream.close();
+
+            for (int i = 0; i < generatedStringList.size(); i++) {
+                fileWithStrings.println(generatedStringList.get(i).getGeneratedString());
             }
-        }catch (IOException e){
+
+        } catch (FileNotFoundException e) {
             System.out.println(e);
 
         }
-    }
 
+    }
 
 
 }

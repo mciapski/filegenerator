@@ -3,12 +3,16 @@ package com.edrone.filegenerator;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import org.jobrunr.jobs.mappers.JobMapper;
+import org.jobrunr.scheduling.JobScheduler;
 import org.junit.jupiter.api.Test;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
@@ -33,13 +37,20 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @WebMvcTest(GeneratorController.class)
-@ContextConfiguration(classes = {GeneratorController.class,ExceptionAdvice.class})
+@Import(FileGenerationService.class)
+//@SpringBootTest
+//@ContextConfiguration(classes = {GeneratorController.class,ExceptionAdvice.class})
 @AutoConfigureMockMvc
 class GeneratorControllerTest {
 
-    @MockBean
+    @Autowired
     GeneratorController generatorController;
-
+    @MockBean
+    GeneratorRepository generatorRepository;
+    @MockBean
+    JobScheduler jobScheduler;
+    @MockBean
+    JobMapper jobMapper;
 
     @Autowired
     WebApplicationContext webApplicationContext;
@@ -51,6 +62,7 @@ class GeneratorControllerTest {
 
     @Test
     public void generatorControllerIsNotNull() {
+
         assertThat(generatorController).isNotNull();
     }
 
@@ -74,7 +86,7 @@ class GeneratorControllerTest {
         // possibleQuantityOfWords = 2^2 + 2^3 = 36, so it should throw an exception
 
         //when
-        when(generatorController.startGenerationJob(request)).thenThrow(new NotEnoughCharsException("Za mała ilość znaków"));
+//        when(generatorController.startGenerationJob(request)).thenThrow(new NotEnoughCharsException("Za mała ilość znaków"));
 //        System.out.println(generatorController.startGenerationJob(request));
         var response = mockMvc.perform(post("/api/generate_file")
                         .content(gson.toJson(request))
@@ -90,7 +102,7 @@ class GeneratorControllerTest {
         // given
         var request = new FileGenerationRequest("Ola", 100, 2, 5);
         // when
-        when(generatorController.startGenerationJob(request)).thenReturn(List.of(new GeneratedString(1, "Dramat")));
+//        when(generatorController.startGenerationJob(request)).thenReturn(List.of(new GeneratedString(1, "Dramat")));
         var response = mockMvc.perform(post("/api/generate_file")
                         .content(gson.toJson(request))
                         .contentType(MediaType.APPLICATION_JSON_VALUE))
@@ -101,7 +113,7 @@ class GeneratorControllerTest {
         System.out.println(response.getContentAsString());
         List<GeneratedString> result = gson.fromJson(response.getContentAsString(), new TypeToken<List<GeneratedString>>() {
         }.getType());
-        assertThat(result).isEqualTo(List.of(new GeneratedString(1, "Dramat")));
+        assertThat(result.size()).isEqualTo(100);
     }
 
 
